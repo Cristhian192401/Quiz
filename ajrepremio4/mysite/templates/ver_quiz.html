@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Quiz - QuizPlatform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .contenedor { max-width: 900px; margin: 0 auto; }
+        .encabezado { background: white; border-radius: 20px; padding: 40px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
+        .encabezado h1 { color: #333; font-size: 2.5em; margin-bottom: 15px; }
+        .encabezado p { color: #666; font-size: 1.1em; margin-bottom: 20px; }
+        .mostrar-pin { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px; display: inline-block; margin-top: 10px; }
+        .mostrar-pin h2 { font-size: 3em; letter-spacing: 5px; }
+        .meta-quiz { display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap; }
+        .elemento-meta { display: flex; align-items: center; gap: 10px; font-size: 1.1em; color: #666; }
+        .icono-meta { font-size: 1.5em; }
+        .lista-preguntas { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .lista-preguntas h2 { color: #333; margin-bottom: 30px; font-size: 2em; }
+        .elemento-pregunta { background: #f8f9fa; border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 5px solid #667eea; }
+        .encabezado-pregunta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .numero-pregunta { background: #667eea; color: white; padding: 8px 15px; border-radius: 20px; font-weight: bold; }
+        .temporizador-pregunta { color: #666; font-weight: 500; }
+        .texto-pregunta { font-size: 1.3em; color: #333; margin-bottom: 15px; font-weight: 500; }
+        .multimedia-pregunta { margin: 15px 0; }
+        .multimedia-pregunta img { max-width: 400px; width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .lista-opciones { margin-top: 15px; }
+        .elemento-opcion { display: flex; align-items: center; gap: 15px; padding: 12px 15px; background: white; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 10px; }
+        .elemento-opcion.correcta { border-color: #4caf50; background: #f1f8f4; }
+        .letra-opcion { width: 35px; height: 35px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .elemento-opcion.correcta .letra-opcion { background: #4caf50; }
+        .texto-opcion { flex: 1; color: #333; }
+        .insignia-correcta { background: #4caf50; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
+        .acciones { display: flex; justify-content: center; gap: 15px; margin-top: 30px; flex-wrap: wrap; }
+        .boton { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; font-size: 1.1em; border-radius: 10px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; transition: all 0.3s ease; }
+        .boton:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .boton-secundario { background: white; color: #667eea; border: 2px solid #667eea; }
+        .boton-secundario:hover { background: #f0f4ff; }
+        @media (max-width: 768px) {
+            .encabezado h1 { font-size: 2em; }
+            .mostrar-pin h2 { font-size: 2em; }
+            .meta-quiz { flex-direction: column; gap: 15px; }
+            .multimedia-pregunta img { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <div class="encabezado">
+            <h1 id="tituloQuiz"></h1>
+            <p id="descripcionQuiz"></p>
+            <div class="mostrar-pin">
+                <h2 id="codigoPin"></h2>
+                <p>Código PIN para unirse</p>
+            </div>
+            <div class="meta-quiz">
+                <div class="elemento-meta"><span class="icono-meta">📝</span><span id="totalPreguntas"></span></div>
+                <div class="elemento-meta"><span class="icono-meta">🎮</span><span id="modoQuiz"></span></div>
+                <div class="elemento-meta"><span class="icono-meta">⏱️</span><span id="tiempoQuiz"></span></div>
+                <div class="elemento-meta"><span class="icono-meta" id="iconoPrivacidad"></span><span id="privacidadQuiz"></span></div>
+            </div>
+            <div class="acciones">
+                <a href="/jugar" class="boton">🎮 Jugar Ahora</a>
+                <button class="boton boton-secundario" onclick="copiarEnlace()">🔗 Copiar Enlace</button>
+                <a href="/" class="boton boton-secundario">🏠 Inicio</a>
+            </div>
+        </div>
+
+        <div class="lista-preguntas">
+            <h2>📚 Contenido del Quiz</h2>
+            <div id="preguntasContainer"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const params = new URLSearchParams(window.location.search);
+        const idQuiz = params.get('id_quiz');
+        if (!idQuiz) {
+            alert('❌ Falta el parámetro id_quiz en la URL');
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/quizzes/${idQuiz}`);
+            if (!resp.ok) throw new Error('No se pudo obtener la información del quiz');
+            const quiz = await resp.json();
+
+            // Mostrar datos del quiz
+            document.getElementById('tituloQuiz').textContent = quiz.titulo || 'Sin título';
+            document.getElementById('descripcionQuiz').textContent = quiz.descripcion || 'Sin descripción';
+            document.getElementById('codigoPin').textContent = quiz.codigo_pin || '—';
+            document.getElementById('totalPreguntas').textContent = `${(quiz.preguntas || []).length} Preguntas`;
+            document.getElementById('modoQuiz').textContent = quiz.modo === 'grupal' ? 'Modo Grupal' : 'Modo Individual';
+            document.getElementById('tiempoQuiz').textContent = `${quiz.tiempo_cuenta_regresiva || 30} segundos por pregunta`;
+            document.getElementById('privacidadQuiz').textContent = quiz.es_publico ? 'Público' : 'Privado';
+            document.getElementById('iconoPrivacidad').textContent = quiz.es_publico ? '🌐' : '🔒';
+
+            const contenedorPreguntas = document.getElementById('preguntasContainer');
+            contenedorPreguntas.innerHTML = '';
+
+            if (!quiz.preguntas || quiz.preguntas.length === 0) {
+                contenedorPreguntas.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <p style="font-size: 3em; margin-bottom: 20px;">📝</p>
+                        <h3>No hay preguntas aún</h3>
+                        <p>Este quiz aún no tiene preguntas agregadas</p>
+                    </div>`;
+                return;
+            }
+
+            // Renderizar preguntas
+            quiz.preguntas.forEach((pregunta, index) => {
+                const opcionesHTML = (pregunta.opciones || []).map((opcion, i) => `
+                    <div class="elemento-opcion ${opcion.es_correcta ? 'correcta' : ''}">
+                        <div class="letra-opcion">${String.fromCharCode(65 + i)}</div>
+                        <div class="texto-opcion">${opcion.texto_opcion}</div>
+                        ${opcion.es_correcta ? '<div class="insignia-correcta">✓ Correcta</div>' : ''}
+                    </div>
+                `).join('');
+
+                const imgHTML = pregunta.url_imagen ? `<div class="multimedia-pregunta"><img src="${pregunta.url_imagen}" alt="Imagen de la pregunta"></div>` : '';
+                const vidHTML = pregunta.url_video ? `<div class="multimedia-pregunta"><p>📹 Video: <a href="${pregunta.url_video}" target="_blank" style="color: #667eea;">Ver video</a></p></div>` : '';
+
+                const preguntaHTML = `
+                    <div class="elemento-pregunta">
+                        <div class="encabezado-pregunta">
+                            <div class="numero-pregunta">Pregunta ${index + 1}</div>
+                            <div class="temporizador-pregunta">⏱️ ${pregunta.tiempo_limite || 30} segundos</div>
+                        </div>
+                        <div class="texto-pregunta">${pregunta.texto_pregunta}</div>
+                        ${imgHTML}
+                        ${vidHTML}
+                        <div class="lista-opciones">${opcionesHTML}</div>
+                    </div>
+                `;
+                contenedorPreguntas.innerHTML += preguntaHTML;
+            });
+
+            window.copiarEnlace = function() {
+                const url = window.location.href;
+                const codigoPin = quiz.codigo_pin || '';
+                const texto = `¡Únete a mi quiz!\n\nEnlace: ${url}\nPIN: ${codigoPin}`;
+                navigator.clipboard.writeText(texto).then(() => {
+                    alert('✅ Enlace y PIN copiados al portapapeles');
+                }).catch(() => {
+                    const area = document.createElement('textarea');
+                    area.value = texto;
+                    document.body.appendChild(area);
+                    area.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(area);
+                    alert('✅ Enlace y PIN copiados al portapapeles');
+                });
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert('❌ Error al cargar los datos del quiz.');
+        }
+    });
+    </script>
+</body>
+</html>

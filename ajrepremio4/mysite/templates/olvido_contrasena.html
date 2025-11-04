@@ -1,0 +1,87 @@
+<!-- templates/olvido_contrasena.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recuperar Contraseña - QuizPlatform</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .contenedor { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 450px; width: 100%; padding: 40px; }
+    .encabezado { text-align: center; margin-bottom: 30px; }
+    .encabezado h1 { color: #333; font-size: 2em; margin-bottom: 10px; }
+    .encabezado p { color: #666; }
+    .grupo-formulario { margin-bottom: 20px; }
+    .grupo-formulario label { display: block; color: #333; font-weight: bold; margin-bottom: 8px; }
+    .grupo-formulario input { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; transition: border-color 0.3s ease; }
+    .grupo-formulario input:focus { outline: none; border-color: #667eea; }
+    .btn { width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px; font-size: 1.05em; border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+    .contenedor-enlaces { text-align: center; margin-top: 20px; }
+    .contenedor-enlaces a { color: #667eea; text-decoration: none; font-weight: bold; }
+    .contenedor-enlaces a:hover { text-decoration: underline; }
+    .alerta { padding: 12px; border-radius: 10px; margin-bottom: 15px; display: none; }
+    .alerta.mostrar { display: block; }
+    .alerta-exito { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alerta-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .caja-informacion { background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 10px; padding: 12px; margin-bottom: 15px; color: #004085; }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <div class="encabezado">
+      <h1>🔒 Recuperar Contraseña</h1>
+      <p>Ingresa tu correo electrónico</p>
+    </div>
+
+    <div class="alerta alerta-exito" id="alertaExito"></div>
+    <div class="alerta alerta-error" id="alertaError"></div>
+
+    <div class="caja-informacion">
+      <p>📧 Te enviaremos un enlace de recuperación a tu correo electrónico</p>
+    </div>
+
+    <form id="formularioOlvidoContrasena">
+      <div class="grupo-formulario">
+        <label for="correo">Correo Electrónico:</label>
+        <input type="email" id="correo" name="correo" required autofocus />
+      </div>
+      <button type="submit" class="btn">Enviar Enlace de Recuperación</button>
+    </form>
+
+    <div class="contenedor-enlaces">
+      <a href="/iniciar_sesion">Volver a Iniciar Sesión</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('formularioOlvidoContrasena').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const correo = document.getElementById('correo').value;
+      try {
+        const respuesta = await fetch('/olvido_contrasena', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ correo }) 
+        });
+        const datos = await respuesta.json();
+        if (respuesta.ok) {
+          mostrar('exito', '✅ Revisa tu correo para el enlace de recuperación');
+        } else {
+          mostrar('error', datos.error || 'Error al enviar el correo');
+        }
+      } catch (error) { 
+        mostrar('error', 'Error de conexión'); 
+      }
+    });
+    
+    function mostrar(tipo, mensaje) { 
+      const elemento = tipo === 'error' ? document.getElementById('alertaError') : document.getElementById('alertaExito'); 
+      elemento.textContent = mensaje; 
+      elemento.classList.add('mostrar'); 
+      setTimeout(()=> elemento.classList.remove('mostrar'), 5000); 
+    }
+  </script>
+</body>
+</html>

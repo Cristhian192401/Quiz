@@ -1,0 +1,440 @@
+<!-- templates/sala_espera.html -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sala de Espera - QuizPlatform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .barra-navegacion {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .barra-navegacion.mostrar {
+            display: flex;
+        }
+
+        .barra-navegacion h1 {
+            font-size: 1.8em;
+        }
+
+        .derecha-navegacion {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .boton-nav {
+            background: white;
+            color: #667eea;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .boton-nav:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .contenido-pagina {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .barra-navegacion.mostrar+.contenido-pagina {
+            min-height: calc(100vh - 60px);
+        }
+
+        .contenedor-sala {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .encabezado-sala {
+            margin-bottom: 30px;
+        }
+
+        .encabezado-sala h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .encabezado-sala p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .info-quiz {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .info-quiz h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .info-quiz p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .mostrar-pin {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .mostrar-pin strong {
+            font-size: 2em;
+            letter-spacing: 3px;
+        }
+
+        .animacion-espera {
+            margin: 40px 0;
+        }
+
+        .girador {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #667eea;
+            border-radius: 50%;
+            animation: girar 1s linear infinite;
+        }
+
+        @keyframes girar {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .texto-espera {
+            color: #667eea;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .seccion-participantes {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .seccion-participantes h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .cuadricula-participantes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .tarjeta-participante {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tarjeta-participante strong {
+            color: #333;
+        }
+
+        .boton-secundario {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .boton-secundario:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="barra-navegacion" id="barraNavegacion">
+        <h1>🎯 QuizPlatform</h1>
+        <div class="derecha-navegacion">
+            <span>Bienvenido, <strong id="nombreUsuarioNav"></strong></span>
+            <a href="/cerrar_sesion" class="boton-nav">Cerrar Sesión</a>
+        </div>
+    </div>
+
+    <div class="contenido-pagina">
+        <div class="contenedor-sala">
+            <div class="encabezado-sala">
+                <h1>⏳</h1>
+                <h1>Sala de Espera</h1>
+                <p>Esperando que el profesor inicie el quiz...</p>
+            </div>
+
+            <div class="info-quiz">
+                <h2 id="tituloQuiz">Cargando...</h2>
+                <p id="descripcionQuiz"></p>
+                <p id="modoQuiz"></p>
+                <p id="infoGrupo" style="font-size: 1.3em; margin-top: 10px;"></p>
+                <div class="mostrar-pin">
+                    PIN: <strong id="codigoPin"></strong>
+                </div>
+            </div>
+
+            <div class="animacion-espera">
+                <div class="girador"></div>
+                <p class="texto-espera">Esperando al profesor...</p>
+            </div>
+
+            <div class="seccion-participantes">
+                <h3 id="tituloParticipantes">👥 Participantes Conectados: <span id="contadorParticipantes">0</span></h3>
+                <div class="cuadricula-participantes" id="listaParticipantes"></div>
+            </div>
+
+            <button class="boton-secundario" onclick="cambiarGrupo()" style="margin-right: 10px;">🔄 Cambiar Grupo</button>
+            <button class="boton-secundario" onclick="salirDeSala()">← Salir de la Sala</button>
+        </div>
+    </div>
+
+    <script>
+        const parametrosUrl = new URLSearchParams(window.location.search);
+        const idSesion = parametrosUrl.get('id_sesion');
+        const idParticipante = parametrosUrl.get('id_participante');
+        let intervaloConsulta = null;
+        let nombreUsuarioLogueado = null;
+        let datosParticipanteActual = null;
+
+        // Verificar si hay un usuario logueado
+        fetch('/api/info_sesion')
+            .then(respuesta => respuesta.json())
+            .then(datos => {
+                if (datos.nombre_usuario && !datos.es_profesor) {
+                    nombreUsuarioLogueado = datos.nombre_usuario;
+                    document.getElementById('nombreUsuarioNav').textContent = datos.nombre_usuario;
+                    document.getElementById('barraNavegacion').classList.add('mostrar');
+                } else if (datos.nombre_usuario && datos.es_profesor) {
+                    window.location.href = '/panel_control';
+                } else {
+                    document.getElementById('botonVolverInicio').style.display = 'inline-block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('botonVolverInicio').style.display = 'inline-block';
+            });
+
+        // Cargar información de la sesión
+        async function cargarInfoSesion() {
+            try {
+                const respuesta = await fetch(`/api/sesion/${idSesion}/info`);
+                const datos = await respuesta.json();
+
+                if (respuesta.ok) {
+                    document.getElementById('tituloQuiz').textContent = datos.quiz.titulo;
+                    document.getElementById('descripcionQuiz').textContent = datos.quiz.descripcion || 'Sin descripción';
+                    document.getElementById('modoQuiz').textContent = `🎮 Modo: ${datos.quiz.modo === 'grupal' ? 'Grupal' : 'Individual'}`;
+                    document.getElementById('codigoPin').textContent = datos.codigo_pin;
+
+                    // Actualizar lista de participantes
+                    actualizarParticipantes(datos.participantes);
+                } else {
+                    alert('Error cargando información de la sesión');
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Actualizar lista de participantes
+        function actualizarParticipantes(participantes) {
+            const lista = document.getElementById('listaParticipantes');
+            const contador = document.getElementById('contadorParticipantes');
+            const titulo = document.getElementById('tituloParticipantes');
+
+            // Encontrar datos del participante actual
+            datosParticipanteActual = participantes.find(p => p.id == idParticipante);
+
+            // Mostrar grupo asignado
+            if (datosParticipanteActual && datosParticipanteActual.nombre_grupo) {
+                document.getElementById('infoGrupo').innerHTML = `📚 Tu grupo: <strong>${datosParticipanteActual.nombre_grupo}</strong>`;
+
+                // Filtrar solo participantes del mismo grupo
+                const miGrupo = datosParticipanteActual.nombre_grupo;
+                const participantesMismoGrupo = participantes.filter(p => p.nombre_grupo === miGrupo);
+
+                // Actualizar título
+                titulo.innerHTML = `👥 Participantes de tu Grupo: <span id="contadorParticipantes">${participantesMismoGrupo.length}</span>`;
+
+                lista.innerHTML = participantesMismoGrupo.map(p => {
+                    const soyYo = p.id == idParticipante;
+                    return `<div class="tarjeta-participante"><strong>${p.nombre_usuario}${soyYo ? ' (Tú)' : ''}</strong></div>`;
+                }).join('');
+            } else {
+                // Si no tiene grupo asignado, mostrar todos
+                titulo.innerHTML = `👥 Participantes Conectados: <span id="contadorParticipantes">${participantes.length}</span>`;
+
+                lista.innerHTML = participantes.map(p => {
+                    const soyYo = p.id == idParticipante;
+                    const etiquetaGrupo = p.nombre_grupo ? ` <span style="color: #667eea;">(${p.nombre_grupo})</span>` : '';
+                    return `<div class="tarjeta-participante"><strong>${p.nombre_usuario}${soyYo ? ' (Tú)' : ''}</strong>${etiquetaGrupo}</div>`;
+                }).join('');
+            }
+        }
+
+        // Cambiar de grupo
+        function cambiarGrupo() {
+            window.location.href = `/seleccion_grupo?id_sesion=${idSesion}&id_participante=${idParticipante}`;
+        }
+
+        // Salir de la sala
+        async function salirDeSala() {
+            if (!confirm('¿Estás seguro de que deseas salir de la sala?')) {
+                return;
+            }
+
+            try {
+                // Detener consultas periódicas
+                if (intervaloConsulta) {
+                    clearInterval(intervaloConsulta);
+                }
+
+                // Eliminar participante
+                await fetch(`/api/participante/${idParticipante}/salir`, {
+                    method: 'POST'
+                });
+
+                // Redirigir a inicio
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Error al salir:', error);
+                window.location.href = '/';
+            }
+        }
+
+        // Verificar estado de la sesión (consultas periódicas)
+        async function verificarEstadoSesion() {
+            try {
+                const respuesta = await fetch(`/api/sesion/${idSesion}/estado`);
+                const datos = await respuesta.json();
+
+                // ✅ Si la sesión fue finalizada, mostrar mensaje y redirigir
+                if (datos.estado === 'finalizada' || !datos.activa) {
+                    clearInterval(intervaloConsulta);
+                    window.location.href = '/';
+                    return;
+                }
+
+                if (datos.estado === 'iniciada') {
+                    // El profesor inició el quiz, redirigir a jugar
+                    clearInterval(intervaloConsulta);
+                    window.location.href = `/jugar?id_sesion=${idSesion}&id_participante=${idParticipante}&inicio_automatico=true`;
+                }
+
+                // Actualizar participantes
+                if (datos.participantes) {
+                    actualizarParticipantes(datos.participantes);
+                }
+            } catch (error) {
+                console.error('Error verificando estado:', error);
+            }
+        }
+
+        // ✅ NUEVA FUNCIÓN: Detectar si el usuario está reingresando
+        async function verificarReingresoUsuario() {
+            try {
+                // Verificar si ya existe un participante con este nombre de usuario en la sesión
+                const respuesta = await fetch(`/api/sesion/${idSesion}/info`);
+                const datos = await respuesta.json();
+
+                if (datos.participantes) {
+                    // Buscar si ya existe un participante con el mismo ID
+                    const participanteExistente = datos.participantes.find(p => p.id == idParticipante);
+
+                    if (participanteExistente) {
+                        console.log('✅ Reingreso detectado:', participanteExistente.nombre_usuario);
+
+                        // Si ya tiene grupo asignado, mostrar mensaje
+                        if (participanteExistente.nombre_grupo) {
+                            const infoGrupo = document.getElementById('infoGrupo');
+                            if (infoGrupo) {
+                                infoGrupo.innerHTML = `📚 Tu grupo: <strong>${participanteExistente.nombre_grupo}</strong> (reingresaste)`;
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error verificando reingreso:', error);
+            }
+        }
+
+        // Llamar al cargar la sesión
+        if (!idSesion || !idParticipante) {
+            alert('Sesión inválida');
+            window.location.href = '/';
+        } else {
+            cargarInfoSesion();
+            verificarReingresoUsuario(); // ✅ Verificar reingreso
+
+            // Consultas periódicas cada 2 segundos
+            intervaloConsulta = setInterval(verificarEstadoSesion, 2000);
+        }
+    </script>
+</body>
+
+</html>
